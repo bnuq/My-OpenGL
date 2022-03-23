@@ -23,9 +23,10 @@ int main() {
 //만들려는 창에 대한 정보넣기
 //Setup GLFW window properties
 
-	//OpenGL Context Version => 3 버전이다
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);	//version = 3.3 이다
+	//OpenGL Context Version => 강의에서는 3.3 버전을 사용
+	//확인결과, 현재 컴퓨터는 4.6 버전을 사용 중이다
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
 	//오래된 코드는 쓰지 않겠다
 	//하위 호환성을 두지 않겠다
