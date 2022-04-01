@@ -27,28 +27,56 @@ GLuint shader{};
 
 //원래는 다른 파일에 정의해야 하지만, 일단 문자열 형태로 저장
 //Vertex shader
-static const char* vShader = "												  \n\
-#version 330                                                                  \n\
-                                                                              \n\
-layout (location = 0) in vec3 pos;											  \n\
-                                                                              \n\
-void main()                                                                   \n\
-{                                                                             \n\
-    //정점의 위치 이동시키기 => 클립 공간 위치	                                  \n\
-    gl_Position = vec4(0.8 * pos.x, 0.4 * pos.y, pos.z, 1.0);				  \n\
-}";
+//static const char* vShader = "												  \n\
+//#version 330                                                                  \n\
+//                                                                              \n\
+//layout (location = 0) in vec3 pos;											  \n\
+//                                                                              \n\
+//void main()                                                                   \n\
+//{                                                                             \n\
+//    //정점의 위치 이동시키기 => 클립 공간 위치	                                  \n\
+//    gl_Position = vec4(0.8 * pos.x, 0.4 * pos.y, pos.z, 1.0);				  \n\
+//}";
+
+//C++11 => Raw String 사용 => 더 편하게 작성가능
+//"ㅇ( - )ㅇ" 약간 얼굴 같아 보이잖아 => Raw String 은 눈썹-눈-얼굴 순서로 쓴다 ㅋㅋ
+//Excape Character 를 고려하지 않고, 문자열을 작성할 수 있다
+static const char* vShader{ R"vs(
+	#version 330
+
+	layout (location = 0) in vec3 pos;
+
+	void main() {
+
+		//정점의 위치 이동시키기 => 클립 공간 위치 좌표 구함
+		gl_Position = vec4(0.8 * pos.x, 0.4 * pos.y, pos.z, 1.0);
+	};
+)vs" };
+
 
 //Fragment Shader
-static const char* fShader = "                                                \n\
-#version 330                                                                  \n\
-                                                                              \n\
-out vec4 colour;                                                              \n\
-                                                                              \n\
-void main()                                                                   \n\
-{                                                                             \n\
-	//레스터라이저에 의해 면 생성 => 프레그먼트 생성 => 프레그먼트의 색깔 결정     \n\
-    colour = vec4(1.0, 0.0, 1.0, 1.0);                                        \n\
-}";
+//static const char* fShader = "                                                \n\
+//#version 330                                                                  \n\
+//                                                                              \n\
+//out vec4 colour;                                                              \n\
+//                                                                              \n\
+//void main()                                                                   \n\
+//{                                                                             \n\
+//	//레스터라이저에 의해 면 생성 => 프레그먼트 생성 => 프레그먼트의 색깔 결정     \n\
+//    colour = vec4(1.0, 0.0, 1.0, 1.0);                                        \n\
+//}";
+
+//역시 Raw String 을 통해서 Fragment Shader 내용을 작성하자
+static const char* fShader{ R"fs(
+	#version 330
+
+	out vec4 colour;
+
+	void main() {
+		//레스터라이저에 의해 면 생성 => 프레그먼트 생성 => 프레그먼트의 색깔 결정
+		colour = vec4(1.0, 0.0, 1.0, 1.0);
+	}
+)fs" };
 
 
 //1. 삼각형을 그리는 함수
@@ -56,7 +84,12 @@ void CreateTriangle() {
 
 	//그리고자 하는 삼각형의 정점의 위치좌표 => z 성분이 0, 2차원
 	//왜 벡터로 하니까 안되지
-	GLfloat vertices[] = {
+	/*GLfloat vertices[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
+	};*/
+	std::vector<GLfloat> vertices {
 		-1.0f, -1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f
@@ -129,7 +162,15 @@ void CreateTriangle() {
 				STATIC	=> 빈도수, 그리 많이 바꾸지 않는다
 				DRAW	=> 그리는 데 사용된다?
 			*/
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			/*
+				Vector 를 사용하고 싶었는데, Release 모드에서만 되고 디버그 모드에서는 링크 오류 발생
+				정확한 이유는 모르지만,
+				프로젝트 속성 -> 런타임 라이브러리 -> 다중 스레드 디버그 DLL 선택 후
+				링커 에러가 발생하지 않는 것을 확인
+			*/
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+			
 		
 			/*
 				Define an array of generic vertex attribute data
